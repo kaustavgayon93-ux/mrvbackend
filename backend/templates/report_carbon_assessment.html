@@ -1,0 +1,108 @@
+{% extends "report_base.html" %}
+
+{% block title %}Carbon Assessment - {{ project.name }}{% endblock %}
+{% block header %}Carbon Assessment Report | {{ assessment.epoch_name }}{% endblock %}
+
+{% block content %}
+<h2>1. Executive Summary</h2>
+<div class="summary-box">
+    <p><strong>Project Name:</strong> {{ project.name }}</p>
+    <p><strong>Monitoring Period:</strong> {{ assessment.start_date }} to {{ assessment.end_date }}</p>
+    <p><strong>Methodology:</strong> {{ project.methodology }}</p>
+    <p><strong>Net Carbon Credits Issuable:</strong> {{ carbon_summary.net_credits | round(2) }} tCO2e</p>
+</div>
+<p>This report details the carbon stock estimation and net removals for the specified monitoring period, adhering to ISO 14064-2 and applicable standard guidelines.</p>
+
+<h2>2. Project Description</h2>
+<p><strong>Organization:</strong> {{ project.organization }}</p>
+<p><strong>Location:</strong> {{ project.location_desc }}</p>
+<p><strong>Total Project Area:</strong> {{ project.total_area_ha }} hectares</p>
+
+<h2>3. Stratification</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Stratum ID</th>
+            <th>Forest Type</th>
+            <th>Area (ha)</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in strata %}
+        <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.forest_type }}</td>
+            <td>{{ s.area_ha }}</td>
+            <td>{{ s.description }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>4. Field Verification Summary</h2>
+<p>Field plots sampled: <strong>{{ plots | length }}</strong></p>
+<p>Total trees measured: <strong>{{ total_trees }}</strong></p>
+
+<h2>5. Remote Sensing Analysis</h2>
+<p>Satellite data utilized: Copernicus Sentinel-2 L2A, USGS Landsat 8/9.</p>
+<!-- Placeholder for imagery / chart -->
+<div style="width: 100%; height: 200px; background-color: #eee; border: 1px dashed #ccc; text-align: center; line-height: 200px; margin-bottom: 20px;">
+    [Biomass Map / NDVI Change Thumbnail Placeholder]
+</div>
+
+<h2>6. Biomass & Carbon Stock Estimation</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Stratum</th>
+            <th>Mean AGBD (t/ha)</th>
+            <th>Total AGB (t)</th>
+            <th>Total BGB (t)</th>
+            <th>Total Carbon (tC)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in carbon_summary.strata_results %}
+        <tr>
+            <td>{{ row.stratum_id }}</td>
+            <td>{{ row.mean_agbd | round(2) }}</td>
+            <td>{{ row.total_agb | round(2) }}</td>
+            <td>{{ row.total_bgb | round(2) }}</td>
+            <td>{{ row.total_carbon | round(2) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>7. Uncertainty Analysis</h2>
+<table>
+    <tr><td>Sampling Uncertainty (90% CI)</td><td>{{ carbon_summary.uncertainty.sampling }}%</td></tr>
+    <tr><td>Measurement Uncertainty</td><td>{{ carbon_summary.uncertainty.measurement }}%</td></tr>
+    <tr><td>Model/Allometric Uncertainty</td><td>{{ carbon_summary.uncertainty.model }}%</td></tr>
+    <tr><td><strong>Total Combined Uncertainty</strong></td><td><strong>{{ carbon_summary.uncertainty.total }}%</strong></td></tr>
+    <tr><td>Uncertainty Deduction Applied</td><td>{{ carbon_summary.uncertainty.deduction_tco2e }} tCO2e</td></tr>
+</table>
+
+<h2>8. Buffer Pool Contribution</h2>
+<p>Risk Assessment Score: {{ carbon_summary.risk_score }}</p>
+<p>Buffer Withholding: {{ carbon_summary.buffer_pct }}% ({{ carbon_summary.buffer_tco2e }} tCO2e)</p>
+
+<h2>9. Net Carbon Credit Issuance</h2>
+<div class="summary-box">
+    <p>Gross Removals/Emissions Reductions: {{ carbon_summary.gross_tco2e }} tCO2e</p>
+    <p>Less Uncertainty Deduction: -{{ carbon_summary.uncertainty.deduction_tco2e }} tCO2e</p>
+    <p>Less Buffer Pool Contribution: -{{ carbon_summary.buffer_tco2e }} tCO2e</p>
+    <h3 style="margin: 10px 0 0 0;">Net Issuable Credits: {{ carbon_summary.net_credits }} tCO2e</h3>
+</div>
+
+<h2>10. Cryptographic Provenance</h2>
+<p style="font-family: monospace; font-size: 9pt; background: #f4f4f4; padding: 10px; border: 1px solid #ccc; word-break: break-all;">
+    <strong>Model Version:</strong> {{ provenance.model_version }}<br>
+    <strong>Processing Commit:</strong> {{ provenance.commit_hash }}<br>
+    <strong>Input Data Hash:</strong> {{ provenance.data_hash }}<br>
+    <strong>Report Hash:</strong> {{ report_hash }}
+</p>
+{% endblock %}

@@ -1,0 +1,13 @@
+{
+  "name": "Ashtalakshmi MRV Field Collector",
+  "short_name": "MRV Field",
+  "description": "Offline-first field data collection for forest monitoring",
+  "start_url": "/field-collect",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#166534",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

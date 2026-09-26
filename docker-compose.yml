@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: mrv_db
+      POSTGRES_USER: mrv_user
+      POSTGRES_PASSWORD: mrv_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mrv-network
+
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mrv-network
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - mrv-network
+
+  titiler:
+    image: ghcr.io/developmentseed/titiler:latest
+    ports:
+      - "8090:8000"
+    environment:
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_S3_ENDPOINT=http://minio:9000
+      - AWS_REGION=us-east-1
+      - AWS_VIRTUAL_HOSTING=FALSE
+    networks:
+      - mrv-network
+    depends_on:
+      - minio
+
+  pgtileserv:
+    image: pramsey/pg_tileserv:latest
+    ports:
+      - "7800:7800"
+    environment:
+      - DATABASE_URL=postgresql://mrv_user:mrv_dev_password@postgres:5432/mrv_db
+    networks:
+      - mrv-network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+
+networks:
+  mrv-network:
+    driver: bridge

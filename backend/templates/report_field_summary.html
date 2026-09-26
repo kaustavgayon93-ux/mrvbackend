@@ -1,0 +1,113 @@
+{% extends "report_base.html" %}
+
+{% block title %}Field Summary - {{ project.name }}{% endblock %}
+{% block header %}Field Verification Summary Report{% endblock %}
+
+{% block content %}
+<h2>1. Survey Overview</h2>
+<div class="summary-box">
+    <p><strong>Project:</strong> {{ project.name }}</p>
+    <p><strong>Survey Dates:</strong> {{ survey.start_date }} to {{ survey.end_date }}</p>
+    <p><strong>Total Plots Surveyed:</strong> {{ plots | length }}</p>
+    <p><strong>Surveyors:</strong> {{ survey.surveyors | join(', ') }}</p>
+</div>
+
+<h2>2. Plot Locations & Details</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Plot Code</th>
+            <th>Lat, Lon</th>
+            <th>Elevation (m)</th>
+            <th>Stratum</th>
+            <th>Trees Found</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in plots %}
+        <tr>
+            <td>{{ p.code }}</td>
+            <td>{{ p.lat | round(5) }}, {{ p.lon | round(5) }}</td>
+            <td>{{ p.elevation }}</td>
+            <td>{{ p.stratum }}</td>
+            <td>{{ p.tree_count }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>3. Species Inventory (Top 10)</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Species (Scientific)</th>
+            <th>Count</th>
+            <th>Mean DBH (cm)</th>
+            <th>Mean Height (m)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sp in species_stats %}
+        <tr>
+            <td><i>{{ sp.scientific_name }}</i></td>
+            <td>{{ sp.count }}</td>
+            <td>{{ sp.mean_dbh | round(1) }}</td>
+            <td>{{ sp.mean_height | round(1) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>4. Plot-Level Biomass Results</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Plot Code</th>
+            <th>Basal Area (m²/ha)</th>
+            <th>Est. AGB (kg/plot)</th>
+            <th>Est. AGB Density (t/ha)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in plot_biomass %}
+        <tr>
+            <td>{{ b.plot_code }}</td>
+            <td>{{ b.basal_area_ha | round(2) }}</td>
+            <td>{{ b.agb_kg | round(2) }}</td>
+            <td>{{ b.agbd_tha | round(2) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<h2>5. Quality Assurance</h2>
+<p><strong>GPS Accuracy:</strong> Mean accuracy {{ qa.mean_gps_acc | round(2) }}m (Max {{ qa.max_gps_acc | round(2) }}m)</p>
+<p><strong>Data Completeness:</strong> {{ qa.completeness_pct }}% of mandatory fields provided.</p>
+<p><strong>Outlier Checks:</strong> {{ qa.outliers_flagged }} anomalous measurements flagged for review.</p>
+
+<h2>6. Appendix: Inventory Sample (First 20 Trees)</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Plot</th>
+            <th>Tag</th>
+            <th>Species</th>
+            <th>DBH (cm)</th>
+            <th>Health</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in sample_trees %}
+        <tr>
+            <td>{{ t.plot_code }}</td>
+            <td>{{ t.tag_number }}</td>
+            <td><i>{{ t.species }}</i></td>
+            <td>{{ t.dbh }}</td>
+            <td>{{ t.health }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
