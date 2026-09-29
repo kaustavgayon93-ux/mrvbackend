@@ -41,3 +41,15 @@ class CarbonAssessment(BaseModelMixin, Base):
     report_pdf_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     project: Mapped["MRVProject"] = relationship("MRVProject", back_populates="carbon_assessments")
+
+    @property
+    def status(self) -> str:
+        return self.assessment_status
+
+    @status.setter
+    def status(self, val: str):
+        self.assessment_status = val
+
+    @property
+    def net_tradable_credits(self) -> float:
+        return float(self.net_credits_issued)

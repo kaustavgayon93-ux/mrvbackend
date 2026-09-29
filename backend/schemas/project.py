@@ -22,14 +22,14 @@ class ProjectResponse(BaseModel):
     id: UUID
     org_id: UUID
     name: str
-    description: str
+    description: Optional[str] = None
     methodology: str
     status: str
     start_date: date
     crediting_period_years: int
-    total_area_ha: Optional[float]
+    total_area_ha: Optional[float] = None
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from uuid import UUID
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
@@ -51,13 +52,32 @@ async def get_plot(plot_id: UUID, db: AsyncSession = Depends(get_db_session), cu
 @router.post("/plots/{plot_id}/trees", response_model=TreeResponse)
 async def add_tree(plot_id: UUID, tree: TreeCreate, db: AsyncSession = Depends(get_db_session), current_user: User = Depends(get_current_user)):
     """Add tree measurement."""
-    # Calculate carbon using CarbonCalculator
-    carbon_data = CarbonCalculator.calculate_tree_biomass(tree.dbh_cm, tree.height_m, tree.wood_density_g_cm3, tree.is_conifer)
+    carbon_data = CarbonCalculator.compute_tree_biomass(
+        dbh_cm=tree.dbh_cm,
+        height_m=tree.height_m or 10.0,
+        wood_density=tree.wood_density_g_cm3,
+        is_conifer=tree.is_conifer
+    )
     
+    measured_at = tree.measured_at or datetime.now(timezone.utc)
     new_tree = FieldTree(
         plot_id=plot_id,
-        **tree.model_dump(exclude={"plot_id"}),
-        **carbon_data
+        tag_number=tree.tag_number,
+        species_common=tree.species_common,
+        species_scientific=tree.species_scientific or "Unknown",
+        dbh_cm=tree.dbh_cm,
+        height_m=tree.height_m,
+        wood_density_g_cm3=tree.wood_density_g_cm3,
+        is_conifer=tree.is_conifer,
+        photo_url=tree.photo_url,
+        photo_azimuth_deg=tree.photo_azimuth_deg,
+        measured_at=measured_at,
+        surveyor_id=str(tree.surveyor_id),
+        health_status=tree.health_status,
+        calculated_agb_kg=carbon_data["agb_kg"],
+        calculated_bgb_kg=carbon_data["bgb_kg"],
+        calculated_carbon_kg=carbon_data["carbon_kg"],
+        calculated_tco2e=carbon_data["tco2e"]
     )
     db.add(new_tree)
     await db.commit()

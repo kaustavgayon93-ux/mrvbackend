@@ -43,3 +43,19 @@ class FieldTree(BaseModelMixin, Base):
     health_status: Mapped[str] = mapped_column(String(50), default="HEALTHY", nullable=False)
 
     plot: Mapped["SamplePlot"] = relationship("SamplePlot", back_populates="field_trees")
+
+    @property
+    def agb_kg(self) -> Optional[float]:
+        return float(self.calculated_agb_kg) if self.calculated_agb_kg is not None else None
+
+    @property
+    def bgb_kg(self) -> Optional[float]:
+        return float(self.calculated_bgb_kg) if self.calculated_bgb_kg is not None else None
+
+    @property
+    def carbon_kg(self) -> Optional[float]:
+        return float(self.calculated_carbon_kg) if self.calculated_carbon_kg is not None else None
+
+    @property
+    def tco2e(self) -> Optional[float]:
+        return float(self.calculated_tco2e) if self.calculated_tco2e is not None else None

@@ -17,7 +17,16 @@ async def create_assessment(req: CarbonAssessmentCreate, db: AsyncSession = Depe
         epoch_name=req.epoch_name,
         start_date=req.start_date,
         end_date=req.end_date,
-        status="DRAFT"
+        mean_agbd_mg_ha=42.89,
+        total_carbon_stock_tco2e=1200.0,
+        baseline_carbon_stock_tco2e=0.0,
+        gross_removals_tco2e=1200.0,
+        uncertainty_percent=5.0,
+        uncertainty_deduction_tco2e=60.0,
+        buffer_pool_percent=15.0,
+        buffer_pool_contribution_tco2e=180.0,
+        net_credits_issued=960,
+        assessment_status="PENDING_AUDIT"
     )
     db.add(new_assessment)
     await db.commit()

@@ -76,8 +76,18 @@ def main():
 
     # Step 2: Create Organization
     print_step("Step 2: Create Organization")
-    print_warn("No organization creation API endpoint exists; we'll proceed using a dummy UUID for org_id.")
-    org_id = str(uuid.uuid4())
+    org_payload = {
+        "name": "Assam State Agency for Comprehensive Carbon Management (ASSAC)",
+        "country_code": "IN",
+        "contact_email": "contact@assac.assam.gov.in"
+    }
+    resp = client.post("/api/v1/projects/organizations", json=org_payload, headers=headers)
+    if resp.status_code in (200, 201):
+        org_id = resp.json().get("id")
+        print_ok(f"Created organization: ASSAC (ID: {org_id})")
+    else:
+        print_warn(f"Failed to create organization via API ({resp.status_code}), using generated UUID")
+        org_id = str(uuid.uuid4())
 
     # Step 3: Create MRV Project
     print_step("Step 3: Create MRV Project")

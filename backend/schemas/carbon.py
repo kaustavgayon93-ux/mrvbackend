@@ -16,12 +16,12 @@ class CarbonAssessmentResponse(BaseModel):
     start_date: date
     end_date: date
     status: str
-    total_area_ha: Optional[float]
-    total_carbon_stock_tco2e: Optional[float]
-    buffer_pool_contribution_tco2e: Optional[float]
-    net_tradable_credits: Optional[float]
+    total_area_ha: Optional[float] = None
+    total_carbon_stock_tco2e: Optional[float] = None
+    buffer_pool_contribution_tco2e: Optional[float] = None
+    net_tradable_credits: Optional[float] = None
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
     
     model_config = {"from_attributes": True}
 
